@@ -104,7 +104,7 @@ const config = {
     defaultHeight: 250,
     adContainerLabelHeight: 22
   },
-  host: 'https://ampbyexample.com'
+  host: 'https://xbyexample.appspot.com'
 };
 
 gulp.task('serve', 'starts a local webserver (--port specifies bound port)',

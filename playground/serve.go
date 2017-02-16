@@ -32,6 +32,7 @@ func InitPlayground() {
 	validRequestUrlOrigins = map[string]bool{
 		"ampbyexample.com":                   true,
 		"localhost:8080":                     true,
+		"xbyexample.appspot.com":             true,
 		"amp-by-example-staging.appspot.com": true,
 	}
 }
