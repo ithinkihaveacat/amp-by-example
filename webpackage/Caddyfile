@@ -11,12 +11,14 @@ status 200 /_ah/healthcheck
 internal /amppkg-priv
 root /letsencrypt/public
 
-proxy /amppkg localhost:8081 {
-  without /amppkg
+proxy /_sign localhost:8081 {
+  without /_sign
 }
+
+proxy /amppkg localhost:8081
 
 rewrite {
   if {path} not_starts_with /.well-known/
   if {path} not_starts_with /amppkg/
-  to /amppkg/priv/doc?sign=https%3A%2F%2Fampbyexample.com{path}
+  to /_sign/priv/doc?sign=https%3A%2F%2Fampbyexample.com{path}
 }

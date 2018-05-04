@@ -22,14 +22,14 @@ RUN ./certbot-auto --non-interactive --install-only
 RUN mkdir config work logs
 
 RUN mkdir -p /letsencrypt/config/live/ampbyexample.com
-COPY *.pem /letsencrypt/config/live/ampbyexample.com/
+COPY letsencrypt/*.pem /letsencrypt/config/live/ampbyexample.com/
 
 COPY amppkg.toml .
 COPY Caddyfile .
 COPY start.sh .
 
 RUN mkdir -p /letsencrypt/public/.well-known/acme-challenge
-RUN echo "hello" > /letsencrypt/public/.well-known/acme-challenge/foo.txt
+#RUN echo "hello" > /letsencrypt/public/.well-known/acme-challenge/foo.txt
 
 ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.1/dumb-init_1.2.1_amd64 /usr/local/bin/dumb-init
 RUN chmod +x /usr/local/bin/dumb-init
