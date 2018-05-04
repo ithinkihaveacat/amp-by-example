@@ -10,13 +10,13 @@ status 200 /_ah/healthcheck
 
 internal /amppkg-priv
 root /letsencrypt/public
-#rewrite {
-#  if {path} not_starts_with /.well-known
-#  to /amppkg/priv/doc?fetch={1}
-#}
-#proxy /amppkg localhost:8081 {
-#  without /amppkg
-#}
 
-# works if no Caddyfile
-# caddy -type http -http2=false -host=localhost -root=public
+proxy /amppkg localhost:8081 {
+  without /amppkg
+}
+
+rewrite {
+  if {path} not_starts_with /.well-known/
+  if {path} not_starts_with /amppkg/
+  to /amppkg/priv/doc?sign=https%3A%2F%2Fampbyexample.com{path}
+}
