@@ -1,14 +1,8 @@
-This directory contains your keys and certificates.
+For now, manually obtain the certificates by ssh'ing into the container and
+running e.g.:
 
-`privkey.pem`  : the private key for your certificate.
-`fullchain.pem`: the certificate file used in most server software.
-`chain.pem`    : used for OCSP stapling in Nginx >=1.3.7.
-`cert.pem`     : will break many server configurations, and should not be used
-                 without reading further documentation (see link below).
+./certbot-auto certonly --config-dir config --logs-dir logs --work-dir work --agree-tos --manual-public-ip-logging-ok -m mjs@beebo.org -n --webroot --webroot-path /letsencrypt/public -d ampbyexample.com
 
-WARNING: DO NOT MOVE THESE FILES!
-         Certbot expects these files to remain in this location in order
-         to function properly!
-
-We recommend not moving these files. For more information, see the Certbot
-User Guide at https://certbot.eff.org/docs/using.html#where-are-my-certificates.
+This will generate the certificates and put them into `/letsencrypt/config` on
+the container. Download them from the container, copy them into this directory,
+then re-deploy the container.
