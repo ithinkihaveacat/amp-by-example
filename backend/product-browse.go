@@ -85,16 +85,14 @@ func InitProductBrowse() {
 	RegisterSample("samples_templates/product_browse_page", renderProductBrowsePage)
 	RegisterSample("samples_templates/product_page", renderProduct)
 	RegisterSampleEndpoint("samples_templates/product_browse_page", SEARCH, handleSearchRequest)
-	http.HandleFunc("/samples_templates/products", handleProductsRequest)
-	http.HandleFunc(SHOW_MORE_PATH, handleLoadMoreRequest)
-	http.HandleFunc(ADD_TO_CART_PATH, func(w http.ResponseWriter, r *http.Request) {
-		handlePost(w, r, addToCart)
-	})
+	RegisterHandler("/samples_templates/products", handleProductsRequest)
+	RegisterHandler("/samples_templates/products_autosuggest", handleProductsAutosuggestRequest)
+	RegisterHandler(SHOW_MORE_PATH, handleLoadMoreRequest)
+	RegisterHandler(ADD_TO_CART_PATH, onlyPost(addToCart))
 	cache = NewLRUCache(100)
 }
 
 func addToCart(w http.ResponseWriter, r *http.Request) {
-	EnableCors(w, r)
 	clientId := r.FormValue("clientId")
 	if clientId == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -258,8 +256,6 @@ func handleSearchRequest(w http.ResponseWriter, r *http.Request, page Page) {
 }
 
 func handleLoadMoreRequest(w http.ResponseWriter, r *http.Request) {
-	EnableCors(w, r)
-	SetContentTypeJson(w)
 	moreItemsPageIndex := r.URL.Query().Get("moreItemsPageIndex")
 	productsFile, err := ioutil.ReadFile(buildShowMorePath(moreItemsPageIndex))
 	if err != nil {
@@ -276,9 +272,7 @@ func handleLoadMoreRequest(w http.ResponseWriter, r *http.Request) {
 		productsRoot.HasMorePages = true
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	productsFile, err = json.Marshal(productsRoot)
-	w.Write(productsFile)
+	SendJsonResponse(w, productsRoot)
 }
 
 func buildShowMorePath(moreItemsPageIndex string) string {
@@ -322,6 +316,31 @@ func handleProductsRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(jsonProducts)
+}
+
+func handleProductsAutosuggestRequest(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("search")
+
+	var productDescs []string
+	for _, productDescription := range products {
+		productDescs = append(productDescs, productDescription.Name)
+	}
+
+	filteredStrs := Filter(productDescs, func(v string) bool {
+		return CaseInsensitiveContains(v, query)
+	})
+
+	if len(filteredStrs) > 0 {
+		results := Min(len(filteredStrs), 4)
+		SendAmpListItems(w, map[string]interface{}{
+			"query":   query,
+			"results": filteredStrs[:results],
+		})
+	} else {
+		SendAmpListItems(w, map[string]interface{}{
+			"query": query,
+		})
+	}
 }
 
 type ByPriceAsc []Product

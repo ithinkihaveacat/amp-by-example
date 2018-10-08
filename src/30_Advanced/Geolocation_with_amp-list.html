@@ -4,8 +4,8 @@
 <!--
   ## Introduction
 
-  While the AMP Caches don't offer support for geolocation, you can enable
-  geo-based features with geolocation logic on your backend and
+  If you need more fine-grained geolocation support than provided by the [amp-geo extension](/components/amp-geo/),
+  you can implement geo-based features with geolocation logic on your backend and
   [amp-list](https://www.ampproject.org/docs/reference/components/amp-list).
   This adds an additional XHR request but you can mitigate the negative UX
   effects with a skeleton layout in the placeholder attribute.
@@ -22,7 +22,7 @@
   <!-- Import the `amp-list` component ... -->
   <script async custom-element="amp-list" src="https://cdn.ampproject.org/v0/amp-list-0.1.js"></script>
   <!-- ... and the `amp-mustache` component -->
-  <script async custom-template="amp-mustache" src="https://cdn.ampproject.org/v0/amp-mustache-0.1.js"></script>
+  <script async custom-template="amp-mustache" src="https://cdn.ampproject.org/v0/amp-mustache-0.2.js"></script>
   <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
   <style amp-custom>
     .geolist-preview {

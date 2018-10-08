@@ -38,8 +38,10 @@ describe("DocumentParser", function() {
   <div>hello</div>
 </div>`.trim();
   var COMMENT = '<!--comment-->';
+  var HINT = '<!--~hint~-->';
   var LINK = ' <link href="Hello World" />';
   var META = ' <meta href="Hello World" />';
+  var BASE = ' <base href="/">';
   var DOCUMENT_METADATA = `<!---{
     "experiments": ["amp-accordion"]
   }--->`;
@@ -62,6 +64,19 @@ describe("DocumentParser", function() {
       .toEqual([
           newSection('comment\n', TAG + '\n', "", true, true),
       ]);
+  });
+
+  it("adds hint", function() {
+    const expected = newSection(
+      '',
+      `<!--START_HINT_0-->\n${TAG}\n<!--END_HINT-->\n`,
+      '',
+      true,
+      true
+    );
+    expected.hints = ['hint'];
+
+    expect(parse(HINT, TAG).sections).toEqual([expected]);
   });
 
   it("supports wrapped attributes", function() {
@@ -140,6 +155,13 @@ describe("DocumentParser", function() {
     });
   });
 
+  describe("ends void tags automatically", function() {
+    it("base", function() {
+      var doc = parse(HEAD, COMMENT, BASE, TITLE, HEAD_END);
+      expect(doc.sections.length).toEqual(3);
+    });
+  });
+
   it("adds title to document", function() {
     var doc = parse(HEAD, TITLE, HEAD_END);
     expect(doc.title).toEqual('hello');
@@ -177,6 +199,7 @@ describe("DocumentParser", function() {
       expect(parser.extractTag('<!--- -->')).toEqual('');
       expect(parser.extractTag('  <h4>Hello World</h4>')).toEqual('h4');
       expect(parser.extractTag('<amp-ad width="300"')).toEqual('amp-ad');
+      expect(parser.extractTag('<input type="text">')).toEqual('input');
     });
 
     it("end tag", function() {
@@ -207,6 +230,21 @@ describe("DocumentParser", function() {
     });
   });
 
+  describe('parses lang', function() {
+    it("defaults to en", function() {
+      const document = parse('<html>');
+      expect(document.lang).toBe('en');
+    });
+    it("uses lang attr otherwise", function() {
+      const document = parse('<html ⚡ lang="de">');
+      expect(document.lang).toBe('de');
+    });
+    it("handles comments before", function() {
+      const document = parse('<!-- -->', '<html ⚡ lang="de">');
+      expect(document.lang).toBe('de');
+    });
+  })
+
   describe('parses stories', function() {
     it("sets isAmpStory to true", function() {
       const document = parse('<body>', '<amp-story standalone>', '</amp-story>', '</body>');
@@ -215,6 +253,37 @@ describe("DocumentParser", function() {
     it("sets story id", function() {
       const document = parse('<body>', '<amp-story standalone>', '<amp-story-page id="story-id">', '</amp-story-page>', '</amp-story>', '</body>');
       expect(document.sections[0].storyPageId).toBe('story-id');
+    });
+  });
+
+  describe('parses runtime', function() {
+    it('amp-story', function() {
+      const document = parse('<html ⚡>', '<body>', '<amp-story standalone>', '</amp-story>', '</body>');
+      expect(document.isAmpStory).toBe(true);
+      expect(document.isAmpWeb).toBe(true);
+      expect(document.isAmpEmail).toBe(false);
+      expect(document.isAmpAds).toBe(false);
+    });
+    it('amp-mail', function() {
+      const document = parse('<html ⚡4email>', '<body>', '</body>');
+      expect(document.isAmpStory).toBe(false);
+      expect(document.isAmpWeb).toBe(false);
+      expect(document.isAmpEmail).toBe(true);
+      expect(document.isAmpAds).toBe(false);
+    });
+    it('amp-ad', function() {
+      const document = parse('<html ⚡4ads>', '<body>', '</body>');
+      expect(document.isAmpStory).toBe(false);
+      expect(document.isAmpWeb).toBe(false);
+      expect(document.isAmpEmail).toBe(false);
+      expect(document.isAmpAds).toBe(true);
+    });
+    it('amp-web', function() {
+      const document = parse('<html ⚡>', '<body>', '</body>');
+      expect(document.isAmpStory).toBe(false);
+      expect(document.isAmpWeb).toBe(true);
+      expect(document.isAmpEmail).toBe(false);
+      expect(document.isAmpAds).toBe(false);
     });
   });
 

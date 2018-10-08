@@ -20,6 +20,8 @@ import './event-listener-options/base.js';
 import DocumentController from './document/controller.js';
 import Fab from './fab/fab.js';
 
+import * as AutoImporter from './auto-importer/auto-importer.js';
+import * as ComponentsProvider from './components-provider/components-provider.js';
 import * as ErrorList from './error-list/error-list.js';
 import * as Validator from './validator/validator.js';
 import * as Editor from './editor/editor.js';
@@ -48,7 +50,7 @@ addSplitPaneBehavior(document.querySelector('main'));
 // configure error list behavior
 const errorIndicator = document.getElementById('error-indicator');
 const errorListContainer = document.getElementById('error-list');
-const errorList = ErrorList.createErrorList(errorListContainer, errorIndicator);
+
 events.subscribe(
   ErrorList.EVENT_ERROR_SELECTED,
   error => editor.setCursorAndFocus(error.line, error.col)
@@ -56,15 +58,20 @@ events.subscribe(
 
 const validator = Validator.createValidator();
 
+const componentsProvider = ComponentsProvider.createComponentsProvider();
+
+// Create AMP component auto-importer
+const autoImporter = AutoImporter.createAutoImporter(componentsProvider, editor);
+
 // runtime select
 const runtimeChanged = runtimeId => {
   const newRuntime = runtimes.get(runtimeId);
   if (!newRuntime) {
     console.error('unknown runtime: ' + newRuntime);
     return;
-  }
+  };
   events.publish(EVENT_SET_RUNTIME, newRuntime);
-}
+};
 
 const runtimeSelector = createSelector(document.getElementById('runtime-select'), {
   classes: ['minimal'],
@@ -88,7 +95,7 @@ events.subscribe(EVENT_SET_RUNTIME, newRuntime => {
     activeRuntime != newRuntime && 
     activeRuntime.template === editor.getSource()) {
     editor.setSource(newRuntime.template);
-  }
+  };
   validator.validate(editor.getSource());
   activeRuntime = newRuntime;
 });
@@ -114,6 +121,11 @@ events.subscribe([Editor.EVENT_INPUT_NEW], () => {
   const runtime = detectRuntime(source);
   runtimeChanged(runtime.id);
   editorUpdateListener();
+});
+
+// configure auto-importer
+events.subscribe(Validator.EVENT_NEW_VALIDATION_RESULT, validationResult => {
+  autoImporter.update(validationResult);
 });
 
 // setup document
@@ -174,7 +186,7 @@ window.onpopstate = () => {
   if (!params.get('preview')) {
     previewPanel.classList.remove('show');
     showPreview.show();
-  }
+  };
 };
 
 showPreview.show();

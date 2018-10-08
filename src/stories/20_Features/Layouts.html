@@ -1,3 +1,6 @@
+<!---{
+ "skipValidation": "true"
+}--->
 <!-- 
   ## Introduction
 
@@ -10,7 +13,7 @@
     <meta charset="utf-8">
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     <script async custom-element="amp-story"
-        src="https://cdn.ampproject.org/v0/amp-story-0.1.js"></script>
+        src="https://cdn.ampproject.org/v0/amp-story-1.0.js"></script>
     <title>My Story</title>
     <meta name="description" content="Get started with amp-story">
 
@@ -36,7 +39,13 @@
   </head>
 
   <body>
-    <amp-story standalone>
+    <amp-story standalone
+      title="Stories in AMP - Layouts"
+      publisher="AMP Project"
+      publisher-logo-src="<%host%>/favicons/coast-228x228.png"
+      poster-portrait-src="https://picsum.photos/300/400"
+      poster-square-src="https://picsum.photos/300/300"
+      poster-landscape-src="https://picsum.photos/400/300">
 
       <!-- ## Fill -->
 
@@ -137,6 +146,9 @@
           <div class="content">Paragraph 6</div>
         </amp-story-grid-layer>
       </amp-story-page>
+
+      <amp-story-bookend src="<%host%>/json/bookend.json" layout="nodisplay">
+      </amp-story-bookend>
 
     </amp-story>
   </body>
