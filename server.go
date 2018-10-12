@@ -42,10 +42,7 @@ func init() {
 	backend.InitAmpConsent()
 	backend.InitAmpStoryAutoAds()
 	backend.InitLetsEncrypt()
-<<<<<<< HEAD
-=======
 	backend.InitSeatmapPage()
->>>>>>> master
 	playground.InitPlayground()
 	backend.InitStatic()
 	http.HandleFunc("/_ah/warmup", warmup)
